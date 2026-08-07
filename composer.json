@@ -1,0 +1,29 @@
+{
+  "name": "traw/access-rules",
+  "type": "typo3-cms-extension",
+  "description": "Access Rules - Advanced Frontenduser groups access rules",
+  "authors": [
+    {
+      "name": "Thomas Rawiel",
+      "role": "Developer"
+    }
+  ],
+  "require": {
+    "typo3/cms-core": "^12 || ^13 || ^14"
+  },
+  "license": "GPL-3.0-or-later",
+  "autoload": {
+    "psr-4": {
+      "TRAW\\AccessRules\\": "Classes/"
+    }
+  },
+  "extra": {
+    "typo3/cms": {
+      "extension-key": "access_rules",
+      "version": "0.1.0-beta",
+      "Package": {
+        "providesPackages": {}
+      }
+    }
+  }
+}
