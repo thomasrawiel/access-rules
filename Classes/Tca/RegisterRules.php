@@ -14,8 +14,8 @@ final class RegisterRules
             'tx_accessrules_rules' => [
                 'exclude' => true,
                 'l10n_mode' => 'exclude',
-                'label' => $ll . 'tca.news.access_rules',
-                'description' => $ll . 'tca.news.access_rules.description',
+                'label' => $ll . 'tca.tx_accessrule_rule',
+                'description' => $ll . 'tca.tx_accessrule_rule.description',
                 'config' => [
                     'type' => 'inline',
                     'foreign_table' => 'tx_accessrules_rule',
@@ -36,6 +36,17 @@ final class RegisterRules
         ]);
         ExtensionManagementUtility::addToAllTCAtypes($tableName, 'tx_accessrules_rules', $typeList, $position);
 
-        $GLOBALS['TCA'][$tableName]['tx_accessrules']['registered'] = true;
+        self::registerTableName($tableName);
+    }
+
+    private static function registerTableName(string $tableName): void
+    {
+        $GLOBALS['TCA'][$tableName]['tx_accessrules']['registered'] ??= true;
+
+        $GLOBALS['TCA']['tx_accessrules_rule']['registered'] ??= [];
+        if (!in_array($tableName, $GLOBALS['TCA']['tx_accessrules_rule']['registered'], true)) {
+            $GLOBALS['TCA']['tx_accessrules_rule']['registered'][] = $tableName;
+            sort($GLOBALS['TCA']['tx_accessrules_rule']['registered']);
+        }
     }
 }
