@@ -28,8 +28,6 @@ final class AccessRuleLabel
             ->getLabelsFromResource('EXT:access_rules/Resources/Private/Language/locallang_tca.xlf');
     }
 
-    private const MM_TABLE = 'tx_accessrules_rule_group_mm';
-
     public function getLabel(array &$params): void
     {
         $row = $params['row'] ?? [];
@@ -53,11 +51,11 @@ final class AccessRuleLabel
     {
         try {
             $qb = GeneralUtility::makeInstance(ConnectionPool::class)
-                ->getQueryBuilderForTable(self::MM_TABLE);
+                ->getQueryBuilderForTable(Rules::MM_TABLENAME);
 
             $rows = $qb
                 ->select('g.title')
-                ->from(self::MM_TABLE, 'mm')
+                ->from(Rules::MM_TABLENAME, 'mm')
                 ->join('mm', 'fe_groups', 'g', $qb->expr()->eq('g.uid', $qb->quoteIdentifier('mm.uid_foreign')))
                 ->where($qb->expr()->eq('mm.uid_local', $qb->createNamedParameter($ruleUid, ParameterType::INTEGER)))
                 ->orderBy('mm.sorting')

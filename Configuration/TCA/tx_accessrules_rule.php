@@ -19,8 +19,8 @@ return [
         'typeicon_column' => 'mode',
         'typeicon_classes' => [
             'default' => 'status-user-group-frontend',
-            '0' => 'status-user-group-frontend',
-            '1' => 'actions-ban',
+            (string)\TRAW\AccessRules\Tca\Rules::MODE_INCLUDE => 'tx_accessrules_mode_include',
+            (string)\TRAW\AccessRules\Tca\Rules::MODE_EXCLUDE => 'tx_accessrules_mode_exclude',
         ],
         'enablecolumns' => [
             'disabled' => 'disabled',
@@ -29,6 +29,11 @@ return [
         ],
         'security' => [
             'ignorePageTypeRestriction' => true,
+        ],
+    ],
+    'types' => [
+        '0' => [
+            'showitem' => 'mode, usergroups',
         ],
     ],
     'columns' => [
@@ -70,8 +75,8 @@ return [
                 'renderType' => 'selectSingle',
                 'default' => 0,
                 'items' => [
-                    ['label' => $ll . 'accessrule.mode.include', 'value' => 0, 'icon' => 'tx_accessrules_mode_include'],
-                    ['label' => $ll . 'accessrule.mode.exclude', 'value' => 1, 'icon' => 'tx_accessrules_mode_exclude'],
+                    ['label' => $ll . 'accessrule.mode.include', 'value' => \TRAW\AccessRules\Tca\Rules::MODE_INCLUDE, 'icon' => 'tx_accessrules_mode_include'],
+                    ['label' => $ll . 'accessrule.mode.exclude', 'value' => \TRAW\AccessRules\Tca\Rules::MODE_EXCLUDE, 'icon' => 'tx_accessrules_mode_exclude'],
                 ],
                 'fieldWizard' => [
                     'selectIcons' => ['disabled' => false],
@@ -92,11 +97,6 @@ return [
                 'maxitems' => 200,
                 'minitems' => 1,
             ],
-        ],
-    ],
-    'types' => [
-        '0' => [
-            'showitem' => 'mode, usergroups',
         ],
     ],
 ];

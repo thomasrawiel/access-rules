@@ -7,11 +7,12 @@ use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 
 final class RegisterRules
 {
+
     public static function register(string $tableName, string $typeList = '', string $position = ''): void
     {
         $ll = 'LLL:EXT:access_rules/Resources/Private/Language/locallang_tca.xlf:';
         ExtensionManagementUtility::addTCAcolumns($tableName, [
-            'tx_accessrules_rules' => [
+            Rules::FIELDNAME => [
                 'exclude' => true,
                 'l10n_mode' => 'exclude',
                 'label' => $ll . 'tca.tx_accessrule_rule',
@@ -34,7 +35,7 @@ final class RegisterRules
                 ],
             ],
         ]);
-        ExtensionManagementUtility::addToAllTCAtypes($tableName, 'tx_accessrules_rules', $typeList, $position);
+        ExtensionManagementUtility::addToAllTCAtypes($tableName, Rules::FIELDNAME, $typeList, $position);
 
         self::registerTableName($tableName);
     }

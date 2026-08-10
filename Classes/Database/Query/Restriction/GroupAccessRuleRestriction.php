@@ -3,8 +3,8 @@ declare(strict_types=1);
 
 namespace TRAW\AccessRules\Database\Query\Restriction;
 
-use Doctrine\DBAL\ParameterType;
 use Psr\Http\Message\ServerRequestInterface;
+use TRAW\AccessRules\Tca\Rules;
 use TYPO3\CMS\Core\Context\Context;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Database\Query\Expression\CompositeExpression;
@@ -24,12 +24,6 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  */
 final class GroupAccessRuleRestriction implements QueryRestrictionInterface, EnforceableQueryRestrictionInterface
 {
-    private const string RULE_TABLE = 'tx_accessrules_rule';
-    private const string MM_TABLE = 'tx_accessrules_rule_group_mm';
-
-    private const int MODE_INCLUDE = 0;
-    private const int MODE_EXCLUDE = 1;
-
     /**
      * @var int[]|null Current frontend user's (subgroup-resolved) group ids, resolved once.
      */
@@ -48,7 +42,7 @@ final class GroupAccessRuleRestriction implements QueryRestrictionInterface, Enf
 
         $constraints = [];
         foreach ($queriedTables as $alias => $tableName) {
-            if ($GLOBALS['TCA'][$tableName]['tx_accessrules']['registered'] ?? false) {
+            if ((bool)($GLOBALS['TCA'][$tableName]['tx_accessrules']['registered'] ?? false)) {
                 $constraints[] = $this->tableConstraints($alias, $tableName, $expressionBuilder);
             }
         }
@@ -61,11 +55,11 @@ final class GroupAccessRuleRestriction implements QueryRestrictionInterface, Enf
         return $expr->and(
         // No INCLUDE rule at all, or the user matches at least one of them.
             $expr->or(
-                'NOT EXISTS (' . $this->rulesQuery($alias, $tableName, self::MODE_INCLUDE, false) . ')',
-                'EXISTS (' . $this->rulesQuery($alias, $tableName, self::MODE_INCLUDE, true) . ')'
+                'NOT EXISTS (' . $this->rulesQuery($alias, $tableName, Rules::MODE_INCLUDE, false) . ')',
+                'EXISTS (' . $this->rulesQuery($alias, $tableName, Rules::MODE_INCLUDE, true) . ')'
             ),
             // No EXCLUDE rule the user matches.
-            'NOT EXISTS (' . $this->rulesQuery($alias, $tableName, self::MODE_EXCLUDE, true) . ')'
+            'NOT EXISTS (' . $this->rulesQuery($alias, $tableName, Rules::MODE_EXCLUDE, true) . ')'
         );
     }
 
@@ -78,30 +72,39 @@ final class GroupAccessRuleRestriction implements QueryRestrictionInterface, Enf
      */
     private function rulesQuery(string $alias, string $tableName, int $mode, bool $onlyIfUserMatches): string
     {
-        $query = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable(self::RULE_TABLE);
+        $query = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable(Rules::TABLENAME);
         $expr = $query->expr();
 
-        $query
-            ->select('rule.uid')
-            ->from(self::RULE_TABLE, 'rule')
-            ->where(
-                $expr->eq('rule.mode', $mode),
-                $expr->or(
-                    $expr->eq('rule.parent', $query->quoteIdentifier($alias . '.uid')),
-                    $expr->eq('rule.parent', $query->quoteIdentifier($alias . '.l10n_parent'))
-                ),
-                //why does this not work??
-                $expr->eq('rule.parent_table', $query->quote($tableName)),
-                'EXISTS (' . $this->groupsQuery('any') . ')'
+        $l10nParent = $GLOBALS['TCA'][$tableName]['ctrl']['transOrigPointerField'] ?? null;
+
+        $constraints = [
+            $expr->eq('rule.mode', $mode),
+            $expr->eq('rule.parent_table', $query->quote($tableName)),
+            'EXISTS (' . $this->groupsQuery('any') . ')',
+        ];
+
+        if ($l10nParent !== null) {
+            $constraints[] = $expr->or(
+                $expr->eq('rule.parent', $query->quoteIdentifier($alias . '.uid')),
+                $expr->eq('rule.parent', $query->quoteIdentifier($alias . '.' . $l10nParent))
             );
+        } else {
+            $constraints[] = $expr->eq('rule.parent', $query->quoteIdentifier($alias . '.uid'));
+        }
 
         if ($onlyIfUserMatches) {
-            $query->andWhere($mode === self::MODE_INCLUDE
+            $constraints[] = $mode === Rules::MODE_INCLUDE
                 // in ALL groups: no referenced group is one the user is missing
                 ? 'NOT EXISTS (' . $this->groupsQuery('missing') . ')'
                 // in ANY group: at least one referenced group is one the user has
-                : 'EXISTS (' . $this->groupsQuery('present') . ')');
+                : 'EXISTS (' . $this->groupsQuery('present') . ')';
         }
+
+        $query
+            ->select('rule.uid')
+            ->from(Rules::TABLENAME, 'rule')
+            ->where(...$constraints);
+
 
         return $query->getSQL();
     }
@@ -113,21 +116,24 @@ final class GroupAccessRuleRestriction implements QueryRestrictionInterface, Enf
      */
     private function groupsQuery(string $filter): string
     {
-        $query = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable(self::MM_TABLE);
+        $query = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable(Rules::MM_TABLENAME);
         $expr = $query->expr();
 
-        $query
-            ->select('mm.uid_local')
-            ->from(self::MM_TABLE, 'mm')
-            ->where($expr->eq('mm.uid_local', $query->quoteIdentifier('rule.uid')));
+        $constraints = [
+            $expr->eq('mm.uid_local', $query->quoteIdentifier('rule.uid')),
+        ];
 
         if ($filter === 'missing') {
-            $query->andWhere($expr->notIn('mm.uid_foreign', $this->groupIds()));
+            $constraints[] = $expr->notIn('mm.uid_foreign', $this->groupIds());
         } elseif ($filter === 'present') {
-            $query->andWhere($expr->in('mm.uid_foreign', $this->groupIds()));
+            $constraints[] = $expr->in('mm.uid_foreign', $this->groupIds());
         }
 
-        return $query->getSQL();
+        return $query
+            ->select('mm.uid_local')
+            ->from(Rules::MM_TABLENAME, 'mm')
+            ->where(...$constraints)
+            ->getSQL();
     }
 
     /**

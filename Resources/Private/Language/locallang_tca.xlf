@@ -8,6 +8,18 @@
 			<trans-unit id="tx_accessrule_rule">
 				<source>Additional access rule</source>
 			</trans-unit>
+			<trans-unit id="tca.tx_accessrule_rule">
+				<source>Additional access rules</source>
+			</trans-unit>
+			<trans-unit id="tca.tx_accessrule_rule.description">
+				<source>Fine-grained visibility control in addition to "Usergroup Access Rights".
+
+					Show rules grant access only if the user belongs to ALL specified groups. Multiple Show rules are combined using OR logic.
+
+					Hide rules deny access if the user belongs to ANY of the specified groups.
+
+					If no rules are defined, no additional restrictions are applied.</source>
+			</trans-unit>
 			<trans-unit id="accessrule.mode">
 				<source>Rule type</source>
 			</trans-unit>
