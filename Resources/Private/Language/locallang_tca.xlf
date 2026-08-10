@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+	<file source-language="en" datatype="plaintext"
+	      original="EXT:access_rules/Resources/Private/Language/locallang_tca.xlf" date="2026-07-03T02:11:02Z"
+	      product-name="access_rules">
+		<header/>
+		<body>
+			<trans-unit id="tx_accessrule_rule">
+				<source>Additional access rule</source>
+			</trans-unit>
+			<trans-unit id="accessrule.mode">
+				<source>Rule type</source>
+			</trans-unit>
+			<trans-unit id="accessrule.mode.description">
+				<source>Show: grant access to users in ALL selected groups. Hide: remove access from users in ANY selected group.</source>
+			</trans-unit>
+			<trans-unit id="accessrule.mode.include">
+				<source>Show (user must be in all groups)</source>
+			</trans-unit>
+			<trans-unit id="accessrule.mode.exclude">
+				<source>Hide (user in any of these groups)</source>
+			</trans-unit>
+			<trans-unit id="accessrule.usergroups">
+				<source>Usergroups</source>
+			</trans-unit>
+			<trans-unit id="accessrule.usergroups.description">
+				<source>Show rule: the user must be in every group selected here. Hide rule: being in any one of them is enough.</source>
+			</trans-unit>
+			<trans-unit id="accessrule.label.include">
+				<source>Show for:</source>
+			</trans-unit>
+			<trans-unit id="accessrule.label.exclude">
+				<source>Hide from:</source>
+			</trans-unit>
+			<trans-unit id="accessrule.label.and">
+				<source>and</source>
+			</trans-unit>
+			<trans-unit id="accessrule.label.or">
+				<source>or</source>
+			</trans-unit>
+			<trans-unit id="accessrule.label.empty">
+				<source>(no groups — rule inactive)</source>
+			</trans-unit>
+		</body>
+	</file>
+</xliff>
