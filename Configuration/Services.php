@@ -19,4 +19,5 @@ return static function (ContainerConfigurator $configurator, ContainerBuilder $b
         ]);
     
     $services->set(\TRAW\AccessRules\Hooks\IconOverlay::class)->public();
+    $services->set(\TRAW\AccessRules\Database\Query\Restriction\GroupAccessRuleRestriction::class)->public();
 };

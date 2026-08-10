@@ -11,4 +11,7 @@ final readonly class Rules
     public const string MM_TABLENAME = 'tx_accessrules_rule_group_mm';
     public const int MODE_INCLUDE = 0;
     public const int MODE_EXCLUDE = 1;
+
+    public const int MATCH_ANY = 0;
+    public const int MATCH_ALL = 1;
 }

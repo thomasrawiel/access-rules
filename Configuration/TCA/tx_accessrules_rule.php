@@ -33,7 +33,7 @@ return [
     ],
     'types' => [
         '0' => [
-            'showitem' => 'mode, usergroups',
+            'showitem' => 'mode, match, usergroups',
         ],
     ],
     'columns' => [
@@ -80,6 +80,19 @@ return [
                 ],
                 'fieldWizard' => [
                     'selectIcons' => ['disabled' => false],
+                ],
+            ],
+        ],
+        'match' => [
+            'exclude' => true,
+            'label' => $ll . 'accessrule.match',
+            'config' => [
+                'type' => 'select',
+                'renderType' => 'selectSingle',
+                'default' => 0,
+                'items' => [
+                    ['label' => $ll . 'accessrule.match.any', 'value' => \TRAW\AccessRules\Tca\Rules::MATCH_ANY],
+                    ['label' => $ll . 'accessrule.match.all', 'value' => \TRAW\AccessRules\Tca\Rules::MATCH_ALL],
                 ],
             ],
         ],

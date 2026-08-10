@@ -28,6 +28,8 @@ final class GroupAccessRuleRestriction implements QueryRestrictionInterface, Enf
      * @var int[]|null Current frontend user's (subgroup-resolved) group ids, resolved once.
      */
     private ?array $frontendUserGroups = null;
+    
+    public function __construct(private readonly ConnectionPool $connectionPool) {}
 
     public function isEnforced(): bool
     {
@@ -72,7 +74,7 @@ final class GroupAccessRuleRestriction implements QueryRestrictionInterface, Enf
      */
     private function rulesQuery(string $alias, string $tableName, int $mode, bool $onlyIfUserMatches): string
     {
-        $query = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable(Rules::TABLENAME);
+        $query = $this->connectionPool->getQueryBuilderForTable(Rules::TABLENAME);
         $expr = $query->expr();
 
         $l10nParent = $GLOBALS['TCA'][$tableName]['ctrl']['transOrigPointerField'] ?? null;
@@ -93,11 +95,16 @@ final class GroupAccessRuleRestriction implements QueryRestrictionInterface, Enf
         }
 
         if ($onlyIfUserMatches) {
-            $constraints[] = $mode === Rules::MODE_INCLUDE
-                // in ALL groups: no referenced group is one the user is missing
-                ? 'NOT EXISTS (' . $this->groupsQuery('missing') . ')'
-                // in ANY group: at least one referenced group is one the user has
-                : 'EXISTS (' . $this->groupsQuery('present') . ')';
+            $constraints[] = $expr->or(
+                $expr->and(
+                    $expr->eq('rule.match', Rules::MATCH_ALL),
+                    'NOT EXISTS (' . $this->groupsQuery('missing') . ')'
+                ),
+                $expr->and(
+                    $expr->eq('rule.match', Rules::MATCH_ANY),
+                    'EXISTS (' . $this->groupsQuery('present') . ')'
+                )
+            );
         }
 
         $query
@@ -116,7 +123,7 @@ final class GroupAccessRuleRestriction implements QueryRestrictionInterface, Enf
      */
     private function groupsQuery(string $filter): string
     {
-        $query = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable(Rules::MM_TABLENAME);
+        $query = $this->connectionPool->getQueryBuilderForTable(Rules::MM_TABLENAME);
         $expr = $query->expr();
 
         $constraints = [

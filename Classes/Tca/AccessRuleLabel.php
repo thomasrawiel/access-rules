@@ -32,11 +32,12 @@ final class AccessRuleLabel
     {
         $row = $params['row'] ?? [];
         $uid = (int)($this->scalar($row['uid'] ?? 0));
-        $isExclude = (int)($this->scalar($row['mode'] ?? 0)) === 1;
+        $isExclude = (int)($this->scalar($row['mode'] ?? Rules::MODE_INCLUDE)) === Rules::MODE_EXCLUDE;
+        $isMatch = (int)($this->scalar($row['match'] ?? Rules::MATCH_ANY)) === Rules::MATCH_ALL;
 
 
         $prefix = $this->translate($isExclude ? 'accessrule.label.exclude' : 'accessrule.label.include');
-        $glue = ' ' . $this->translate($isExclude ? 'accessrule.label.or' : 'accessrule.label.and') . ' ';
+        $glue = ' ' . $this->translate(!$isMatch ? 'accessrule.label.or' : 'accessrule.label.and') . ' ';
 
         $titles = $uid > 0 ? $this->groupTitles($uid) : [];
         $groups = $titles === [] ? $this->translate('accessrule.label.empty') : implode($glue, $titles);
