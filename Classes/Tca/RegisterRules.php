@@ -7,15 +7,16 @@ use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 
 final class RegisterRules
 {
+
     public static function register(string $tableName, string $typeList = '', string $position = ''): void
     {
         $ll = 'LLL:EXT:access_rules/Resources/Private/Language/locallang_tca.xlf:';
         ExtensionManagementUtility::addTCAcolumns($tableName, [
-            'tx_accessrules_rules' => [
+            Rules::FIELDNAME => [
                 'exclude' => true,
                 'l10n_mode' => 'exclude',
-                'label' => $ll . 'tca.news.access_rules',
-                'description' => $ll . 'tca.news.access_rules.description',
+                'label' => $ll . 'tca.tx_accessrule_rule',
+                'description' => $ll . 'tca.tx_accessrule_rule.description',
                 'config' => [
                     'type' => 'inline',
                     'foreign_table' => 'tx_accessrules_rule',
@@ -34,8 +35,19 @@ final class RegisterRules
                 ],
             ],
         ]);
-        ExtensionManagementUtility::addToAllTCAtypes($tableName, 'tx_accessrules_rules', $typeList, $position);
+        ExtensionManagementUtility::addToAllTCAtypes($tableName, Rules::FIELDNAME, $typeList, $position);
 
-        $GLOBALS['TCA'][$tableName]['tx_accessrules']['registered'] = true;
+        self::registerTableName($tableName);
+    }
+
+    private static function registerTableName(string $tableName): void
+    {
+        $GLOBALS['TCA'][$tableName]['tx_accessrules']['registered'] ??= true;
+
+        $GLOBALS['TCA']['tx_accessrules_rule']['registered'] ??= [];
+        if (!in_array($tableName, $GLOBALS['TCA']['tx_accessrules_rule']['registered'], true)) {
+            $GLOBALS['TCA']['tx_accessrules_rule']['registered'][] = $tableName;
+            sort($GLOBALS['TCA']['tx_accessrules_rule']['registered']);
+        }
     }
 }

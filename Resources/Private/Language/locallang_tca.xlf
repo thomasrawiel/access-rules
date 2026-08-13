@@ -8,6 +8,16 @@
 			<trans-unit id="tx_accessrule_rule">
 				<source>Additional access rule</source>
 			</trans-unit>
+			<trans-unit id="tca.tx_accessrule_rule">
+				<source>Additional access rules</source>
+			</trans-unit>
+			<trans-unit id="tca.tx_accessrule_rule.description">
+				<source>Fine-grained visibility control in addition to "Usergroup Access Rights".
+
+					If multiple rules are defined, all rules must match.
+
+					If no rules are defined, no additional restrictions are applied.</source>
+			</trans-unit>
 			<trans-unit id="accessrule.mode">
 				<source>Rule type</source>
 			</trans-unit>
@@ -15,16 +25,22 @@
 				<source>Show: grant access to users in ALL selected groups. Hide: remove access from users in ANY selected group.</source>
 			</trans-unit>
 			<trans-unit id="accessrule.mode.include">
-				<source>Show (user must be in all groups)</source>
+				<source>Show</source>
 			</trans-unit>
 			<trans-unit id="accessrule.mode.exclude">
-				<source>Hide (user in any of these groups)</source>
+				<source>Hide</source>
+			</trans-unit>
+			<trans-unit id="accessrule.match">
+				<source>Group matching</source>
+			</trans-unit>
+			<trans-unit id="accessrule.match.all">
+				<source>User must be in all groups</source>
+			</trans-unit>
+			<trans-unit id="accessrule.match.any">
+				<source>User must be in any group</source>
 			</trans-unit>
 			<trans-unit id="accessrule.usergroups">
 				<source>Usergroups</source>
-			</trans-unit>
-			<trans-unit id="accessrule.usergroups.description">
-				<source>Show rule: the user must be in every group selected here. Hide rule: being in any one of them is enough.</source>
 			</trans-unit>
 			<trans-unit id="accessrule.label.include">
 				<source>Show for:</source>

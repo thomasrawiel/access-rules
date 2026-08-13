@@ -28,17 +28,16 @@ final class AccessRuleLabel
             ->getLabelsFromResource('EXT:access_rules/Resources/Private/Language/locallang_tca.xlf');
     }
 
-    private const MM_TABLE = 'tx_accessrules_rule_group_mm';
-
     public function getLabel(array &$params): void
     {
         $row = $params['row'] ?? [];
         $uid = (int)($this->scalar($row['uid'] ?? 0));
-        $isExclude = (int)($this->scalar($row['mode'] ?? 0)) === 1;
+        $isExclude = (int)($this->scalar($row['mode'] ?? Rules::MODE_INCLUDE)) === Rules::MODE_EXCLUDE;
+        $isMatch = (int)($this->scalar($row['match'] ?? Rules::MATCH_ANY)) === Rules::MATCH_ALL;
 
 
         $prefix = $this->translate($isExclude ? 'accessrule.label.exclude' : 'accessrule.label.include');
-        $glue = ' ' . $this->translate($isExclude ? 'accessrule.label.or' : 'accessrule.label.and') . ' ';
+        $glue = ' ' . $this->translate(!$isMatch ? 'accessrule.label.or' : 'accessrule.label.and') . ' ';
 
         $titles = $uid > 0 ? $this->groupTitles($uid) : [];
         $groups = $titles === [] ? $this->translate('accessrule.label.empty') : implode($glue, $titles);
@@ -53,11 +52,11 @@ final class AccessRuleLabel
     {
         try {
             $qb = GeneralUtility::makeInstance(ConnectionPool::class)
-                ->getQueryBuilderForTable(self::MM_TABLE);
+                ->getQueryBuilderForTable(Rules::MM_TABLENAME);
 
             $rows = $qb
                 ->select('g.title')
-                ->from(self::MM_TABLE, 'mm')
+                ->from(Rules::MM_TABLENAME, 'mm')
                 ->join('mm', 'fe_groups', 'g', $qb->expr()->eq('g.uid', $qb->quoteIdentifier('mm.uid_foreign')))
                 ->where($qb->expr()->eq('mm.uid_local', $qb->createNamedParameter($ruleUid, ParameterType::INTEGER)))
                 ->orderBy('mm.sorting')

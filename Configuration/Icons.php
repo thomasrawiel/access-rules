@@ -12,4 +12,12 @@ return [
         'provider' => SvgIconProvider::class,
         'source' => 'EXT:access_rules/Resources/Public/Icons/TCA/ban.svg',
     ],
+    'tx_accessrules_rules' => [
+        'provider' => SvgIconProvider::class,
+        'source' => 'EXT:access_rules/Resources/Public/Icons/TCA/rules.svg',
+    ],
+    'tx_accessrules_rules-nav-hide' => [
+        'provider' => SvgIconProvider::class,
+        'source' => 'EXT:access_rules/Resources/Public/Icons/TCA/rules-nav-hide.svg',
+    ],
 ];

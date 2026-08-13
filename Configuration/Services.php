@@ -12,4 +12,12 @@ return static function (ContainerConfigurator $configurator, ContainerBuilder $b
         ->private();
     $services
         ->load('TRAW\AccessRules\\', __DIR__ . '/../Classes/');
+
+    $services->set(\TRAW\AccessRules\Events\AlterTableDefinitionStatementsEventListener::class)
+        ->tag('event.listener', [
+            'identifier' => 'traw-access-rules/db-definition',
+        ]);
+    
+    $services->set(\TRAW\AccessRules\Hooks\IconOverlay::class)->public();
+    $services->set(\TRAW\AccessRules\Database\Query\Restriction\GroupAccessRuleRestriction::class)->public();
 };
