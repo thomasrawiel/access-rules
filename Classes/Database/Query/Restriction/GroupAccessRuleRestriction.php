@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace TRAW\AccessRules\Database\Query\Restriction;
 
 use Psr\Http\Message\ServerRequestInterface;
+use TRAW\AccessRules\Events\ApplyGroupAccessRulesRestrictionEvent;
 use TRAW\AccessRules\Tca\Rules;
 use TYPO3\CMS\Core\Context\Context;
 use TYPO3\CMS\Core\Database\ConnectionPool;
@@ -11,6 +12,7 @@ use TYPO3\CMS\Core\Database\Query\Expression\CompositeExpression;
 use TYPO3\CMS\Core\Database\Query\Expression\ExpressionBuilder;
 use TYPO3\CMS\Core\Database\Query\Restriction\EnforceableQueryRestrictionInterface;
 use TYPO3\CMS\Core\Database\Query\Restriction\QueryRestrictionInterface;
+use TYPO3\CMS\Core\EventDispatcher\EventDispatcher;
 use TYPO3\CMS\Core\Http\ApplicationType;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
@@ -28,7 +30,7 @@ final class GroupAccessRuleRestriction implements QueryRestrictionInterface, Enf
      * @var int[]|null Current frontend user's (subgroup-resolved) group ids, resolved once.
      */
     private ?array $frontendUserGroups = null;
-    
+
     public function __construct(private readonly ConnectionPool $connectionPool) {}
 
     public function isEnforced(): bool
@@ -38,7 +40,7 @@ final class GroupAccessRuleRestriction implements QueryRestrictionInterface, Enf
 
     public function buildExpression(array $queriedTables, ExpressionBuilder $expressionBuilder): CompositeExpression
     {
-        if (!$this->isFrontend()) {
+        if (!$this->apply()) {
             return $expressionBuilder->and();
         }
 
@@ -164,10 +166,28 @@ final class GroupAccessRuleRestriction implements QueryRestrictionInterface, Enf
         return $this->frontendUserGroups;
     }
 
+    private function apply(): bool
+    {
+        if ($this->isFrontend()) {
+            $event = (GeneralUtility::makeInstance(EventDispatcher::class))->dispatch(
+                new ApplyGroupAccessRulesRestrictionEvent(
+                    $this->isFrontend(), $this->getRequest()
+                )
+            );
+
+            return $event->getApplyGroupAccessRules();
+        }
+        return false;
+    }
+
+    private function getRequest(): ?ServerRequestInterface
+    {
+        return $GLOBALS['TYPO3_REQUEST'] ?? null;
+    }
+
     private function isFrontend(): bool
     {
-        $context = GeneralUtility::makeInstance(Context::class);
-        $request = $GLOBALS['TYPO3_REQUEST'] ?? null;
+        $request = $this->getRequest();
 
         return $request instanceof ServerRequestInterface
             && $request->getAttribute('applicationType') !== null
