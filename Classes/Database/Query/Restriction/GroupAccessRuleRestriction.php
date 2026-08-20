@@ -31,8 +31,6 @@ final class GroupAccessRuleRestriction implements QueryRestrictionInterface, Enf
      */
     private ?array $frontendUserGroups = null;
 
-    public function __construct(private readonly ConnectionPool $connectionPool) {}
-
     public function isEnforced(): bool
     {
         return true;
@@ -76,7 +74,7 @@ final class GroupAccessRuleRestriction implements QueryRestrictionInterface, Enf
      */
     private function rulesQuery(string $alias, string $tableName, int $mode, bool $onlyIfUserMatches): string
     {
-        $query = $this->connectionPool->getQueryBuilderForTable(Rules::TABLENAME);
+        $query = (GeneralUtility::makeInstance(ConnectionPool::class))->getQueryBuilderForTable(Rules::TABLENAME);
         $expr = $query->expr();
 
         $l10nParent = $GLOBALS['TCA'][$tableName]['ctrl']['transOrigPointerField'] ?? null;
@@ -125,7 +123,7 @@ final class GroupAccessRuleRestriction implements QueryRestrictionInterface, Enf
      */
     private function groupsQuery(string $filter): string
     {
-        $query = $this->connectionPool->getQueryBuilderForTable(Rules::MM_TABLENAME);
+        $query = (GeneralUtility::makeInstance(ConnectionPool::class))->getQueryBuilderForTable(Rules::MM_TABLENAME);
         $expr = $query->expr();
 
         $constraints = [

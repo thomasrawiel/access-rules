@@ -17,7 +17,6 @@ return static function (ContainerConfigurator $configurator, ContainerBuilder $b
         ->tag('event.listener', [
             'identifier' => 'traw-access-rules/db-definition',
         ]);
-    
+
     $services->set(\TRAW\AccessRules\Hooks\IconOverlay::class)->public();
-    $services->set(\TRAW\AccessRules\Database\Query\Restriction\GroupAccessRuleRestriction::class)->public();
 };
