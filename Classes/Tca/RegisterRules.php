@@ -7,8 +7,7 @@ use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 
 final class RegisterRules
 {
-
-    public static function register(string $tableName, string $typeList = '', string $position = ''): void
+    public static function register(string $tableName, string $typeList = '', string $position = '', ?string $palette = null): void
     {
         $ll = 'LLL:EXT:access_rules/Resources/Private/Language/locallang_tca.xlf:';
         ExtensionManagementUtility::addTCAcolumns($tableName, [
@@ -35,7 +34,12 @@ final class RegisterRules
                 ],
             ],
         ]);
-        ExtensionManagementUtility::addToAllTCAtypes($tableName, Rules::FIELDNAME, $typeList, $position);
+
+        if (!empty($palette)) {
+            ExtensionManagementUtility::addFieldsToPalette($tableName, $palette, Rules::FIELDNAME, $position);
+        } else {
+            ExtensionManagementUtility::addToAllTCAtypes($tableName, Rules::FIELDNAME, $typeList, $position);
+        }
 
         self::registerTableName($tableName);
     }
