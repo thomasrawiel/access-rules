@@ -9,6 +9,10 @@ final class RegisterRules
 {
     public static function register(string $tableName, string $typeList = '', string $position = '', ?string $palette = null): void
     {
+        if (self::isRegistered($tableName)) {
+            throw new \Exception($tableName . ' is already registered');
+        }
+
         $ll = 'LLL:EXT:access_rules/Resources/Private/Language/locallang_tca.xlf:';
         ExtensionManagementUtility::addTCAcolumns($tableName, [
             Rules::FIELDNAME => [
@@ -53,5 +57,11 @@ final class RegisterRules
             $GLOBALS['TCA']['tx_accessrules_rule']['registered'][] = $tableName;
             sort($GLOBALS['TCA']['tx_accessrules_rule']['registered']);
         }
+    }
+
+    public static function isRegistered(string $tableName): bool
+    {
+        return (bool)($GLOBALS['TCA'][$tableName]['tx_accessrules']['registered'] ?? false)
+            && in_array($tableName, $GLOBALS['TCA']['tx_accessrules_rule']['registered'] ?? [], true);
     }
 }
