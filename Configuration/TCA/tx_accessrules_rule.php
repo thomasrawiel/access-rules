@@ -6,7 +6,7 @@ $ll = 'LLL:EXT:access_rules/Resources/Private/Language/locallang_tca.xlf:';
 return [
     'ctrl' => [
         'title' => $ll . 'tx_accessrule_rule',
-        'label' => 'Access rule',
+        'label' => 'uid',
         'label_userFunc' => \TRAW\AccessRules\Tca\AccessRuleLabel::class . '->getLabel',
         'tstamp' => 'tstamp',
         'crdate' => 'crdate',
